@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh_CN">
+<head>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <style type="text/css">
+html{height:100%}
+body{height:100%;margin:0px;padding:0px}
+#container{height:100%;width:100%}
+#zoominput {
+        height: 24px;
+        width: 150px;
+        padding-left: 8px;
+    }
+    #change-btn {
+        height: 30px;
+        background: #5679ea;
+        border: 0;
+        padding: 0 10px 0 10px;
+        margin: 10px 8px 0 0;
+        cursor: pointer;
+        border-radius: 2px;
+        color: #fff;
+        font-size: 14px;
+    }
+    .info {
+        z-index: 999;
+        width: auto;
+        min-width: 22rem;
+        padding: .75rem 1.25rem;
+        margin-left: 1.25rem;
+        position: fixed;
+        top: 1rem;
+        background-color: rgba(265, 265, 265, 0.9);
+        border-radius: .25rem;
+        font-size: 14px;
+        color: #666;
+        box-shadow: 0 2px 6px 0 rgba(27, 142, 236, 0.3);
+    }
+    </style>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <!-- <script type="text/javascript" src="https://api.map.baidu.com/api?v=1.0&type=webgl&ak=OGGsZNEhMc9IeCtvYyAZaK7tIm6rip5N"></script> -->
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=“OGGsZNEhMc9IeCtvYyAZaK7tIm6rip5N”"></script>
+    <script type="text/javascript" src="https://api.map.baidu.com/api?v=1.0&type=webgl&ak=OGGsZNEhMc9IeCtvYyAZaK7tIm6rip5N"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/TextIconOverlay/1.2/src/TextIconOverlay_min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/library/MarkerClusterer/1.2/src/MarkerClusterer_min.js"></script>
+    <title>标注优化，显示信息框</title>
+</head>
+
+<body>
+<script src="./js数据库/p.js"></script>
+<script src="./js数据库/阳性1.js"></script>
+<script src="./js数据库/阳性2.js"></script>
+<script src="./js数据库/阳性3.js"></script>
+<script src="./js数据库/阳性4.js"></script>
+<script src="./js数据库/阳性0.js"></script>
+<div id="container"></div>
+<div class = "info">
+    <input id="zoominput" type="text" size="20" value="请输入感染人员">
+  <button id="range" class="change-btn">更改范围</button>
+  <form>
+    <label for="start">开始时间:</label>
+    <input id="start" type="datetime-local" name="start" class="userinput">
+    <script>
+      const now = new Date();
+      const timezoneOffset = now.getTimezoneOffset() * 60000;
+      const localISOTime = new Date(now - timezoneOffset).toISOString().slice(0, 16);
+      const dateControl = document.querySelector('input[type="datetime-local"]');
+      dateControl.value = localISOTime;
+    </script>
+
+    <label for="end">结束时间:</label>
+    <input id="end" type="datetime-local" name="end" class="userinput">
+    <script>
+      const nowEnd = new Date();
+      nowEnd.setDate(nowEnd.getDate() + 3);
+      const timezoneOffsetEnd = nowEnd.getTimezoneOffset() * 60000;
+      const localISOTimeEnd = new Date(nowEnd - timezoneOffsetEnd).toISOString().slice(0, 16);
+      const dateControlEnd = document.querySelector('#end');
+      dateControlEnd.value = localISOTimeEnd;
+    </script>
+  </form>
+    <button id="change-btn" onclick="dingwei()">定位</button>
+    <button id="change-btn" onclick="souxun()">查看接触者</button>
+<!--    <button id="change-btn" onclick="fanhui()">返回</button>-->
+<!--    <button id="change-btn" onclick="tiao()">密接人员汇总</button>-->
+    </div>
+</body>
+<script type="text/javascript">
+  var a="";
+    var b=""
+/*    let Arr = [
+        [121.569999695, 16.2399997711],
+        [121.569999695, 16.2399997711],
+        [121.489997864, 16.3199996948]
+    ];*/
+    var map = new BMap.Map("container");
+    map.centerAndZoom(new BMap.Point(108.93 , 34.27), 18);//中心城市
+    map.enableScrollWheelZoom(true);
+    var new_point = new BMapGL.Point(135,35);
+	    map.panTo(new_point);
+    var points = [];
+	for(var i = 0; i < path.length; i++) {
+		var point = new BMap.Point( path[i].l00, path[i].a00);
+		points.push(point);
+	}
+	var options = {
+		size: BMAP_POINT_SIZE_BIG,
+		// shape: BMAP_POINT_SHAPE_RHOMBUS,
+		// color: 'lightgreen'
+        color: 'blue',
+        shape:BMAP_POINT_SHAPE_STAR
+	}
+	var pointCollection = new BMap.PointCollection(points, options);
+    pointCollection.addEventListener('click',function(e){
+			// 循环查出值
+			for (var i = 0; i < path.length; i++) {
+				// points.push(new BMap.Point(data[i].gpsx, data[i].gpsy));
+				if(path[i].l00==e.point.lng&path[i].a00==e.point.lat){// 经度==点击的,维度
+					break;
+				}
+			}
+			// var poin = new BMap.Point(e.point.lng, e.point.lat);
+			// var amarker = new BMap.Marker(poin);
+            // var opts = {
+    	    // width: 200,
+   		    // height: 100,
+    	    // title: path[i].n
+		    // };
+            // var infoWindow= new BMapGL.InfoWindow('姓名：'+path.n+'性别：'+path[i].s+'\n'+'手机号：'+path[i].t+'曾经到达过的地方为：'+path[i].p, opts);
+			// this.openInfoWindow(infoWindow,poin); //开启信息窗口
+            alert('姓名：'+path[i].n+'性别：'+path[i].s+'年龄：'+path[i].age+'手机号：'+path[i].t+'最后一次在'+path[i].t00+'定位在经度：'+path[i].l00+'纬度：'+path[i].a00)
+            })
+	map.addOverlay(pointCollection);
+    // 定位功能的实现
+function dingwei(){
+    var zoom = document.getElementById('zoominput').value;
+    var new_point1=[];
+    for (var i = 0; i < path.length; i++)
+    {
+        if(path[i].id==zoom)
+        break;
+    }
+    var circle;
+    var new_point=[];
+    var smarker=[];
+    var infoWindow1=[];
+    var ops=[];
+    if (zoom==0){
+        for(let j=0;j<pa0.length;j++)
+    {
+        new_point1 = new BMap.Point(pa0[i].l,pa0[i].a);
+    map.panTo(new_point1);//定位在早上的经纬度
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa0[j].l,pa0[j].a);
+        var smarker = new BMap.Marker(new_point);
+        map.addOverlay(smarker);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+    smarker.addEventListener('click', function () {
+        var ops = {
+    	width: 250,
+   		height: 150,
+    	title: path[i].n
+		};
+        infoWindow1= new BMap.InfoWindow('性别：'+path[i].s+'。手机号：'+path[i].t+'在感染者出现前的第'+pa0[j].d+'天'+pa0[j].t, ops);
+   		this.openInfoWindow(infoWindow1, new_point);
+    });
+        map.addOverlay(circle); // 增加圆
+}
+    }
+    if (zoom==1){
+        for(let j=0;j<pa1.length;j++)
+    {
+        new_point1 = new BMap.Point(pa1[i].l,pa1[i].a);
+    map.panTo(new_point1);//定位在早上的经纬度
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa1[j].l,pa1[j].a);
+        var smarker = new BMap.Marker(new_point);
+        map.addOverlay(smarker);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+    smarker.addEventListener('click', function () {
+        var ops = {
+    	width: 250,
+   		height: 150,
+    	title: path[i].n
+		};
+        infoWindow1= new BMap.InfoWindow('性别：'+path[i].s+'。手机号：'+path[i].t+'在感染者出现前的第'+pa1[j].d+'天'+pa1[j].t, ops);
+   		this.openInfoWindow(infoWindow1, new_point);
+    });
+        map.addOverlay(circle); // 增加圆
+}
+    }
+    if (zoom==2){
+        for(let j=0;j<pa2.length;j++)
+    {
+        new_point1 = new BMap.Point(pa2[i].l,pa2[i].a);
+    map.panTo(new_point1);//定位在早上的经纬度
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa2[j].l,pa2[j].a);
+        var smarker = new BMap.Marker(new_point);
+        map.addOverlay(smarker);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+    smarker.addEventListener('click', function () {
+        var ops = {
+    	width: 250,
+   		height: 150,
+    	title: path[i].n
+		};
+        infoWindow1= new BMap.InfoWindow('性别：'+path[i].s+'。手机号：'+path[i].t+'在感染者出现前的第'+pa2[j].d+'天'+pa2[j].t, ops);
+   		this.openInfoWindow(infoWindow1, new_point);
+    });
+        map.addOverlay(circle); // 增加圆
+}
+    }
+    if (zoom==3){
+        for(let j=0;j<pa3.length;j++)
+    {
+        new_point1 = new BMap.Point(pa3[i].l,pa3[i].a);
+    map.panTo(new_point1);//定位在早上的经纬度
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa3[j].l,pa3[j].a);
+        var smarker = new BMap.Marker(new_point);
+        map.addOverlay(smarker);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+    smarker.addEventListener('click', function () {
+        var ops = {
+    	width: 250,
+   		height: 150,
+    	title: path[i].n
+		};
+        infoWindow1= new BMap.InfoWindow('性别：'+path[i].s+'。手机号：'+path[i].t+'在感染者出现前的第'+pa3[j].d+'天'+pa3[j].t, ops);
+   		this.openInfoWindow(infoWindow1, new_point);
+    });
+        map.addOverlay(circle); // 增加圆
+}
+    }
+    if (zoom==4){
+        for(let j=0;j<pa4.length;j++)
+    {
+        new_point1 = new BMap.Point(pa4[i].l,pa4[i].a);
+    map.panTo(new_point1);//定位在早上的经纬度
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa4[j].l,pa4[j].a);
+        var smarker = new BMap.Marker(new_point);
+        map.addOverlay(smarker);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+    smarker.addEventListener('click', function () {
+        var ops = {
+    	width: 250,
+   		height: 150,
+    	title: path[i].n
+		};
+        infoWindow1= new BMap.InfoWindow('性别：'+path[i].s+'。手机号：'+path[i].t+'在感染者出现前的第'+pa4[j].d+'天'+pa4[j].t, ops);
+   		this.openInfoWindow(infoWindow1, new_point);
+    });
+        map.addOverlay(circle); // 增加圆
+}
+    }
+}
+
+async function souxun() {
+        // 返回信息格式：id/id/id
+    var zoom = document.getElementById('zoominput').value;
+
+    var XMLHttpRequest_test = new XMLHttpRequest();
+    var url = "http://127.0.0.1:10082/spacetime/query";
+    XMLHttpRequest_test.open("POST", url, true);
+    XMLHttpRequest_test.setRequestHeader("Content-Type","application/x-www-form-urlencoded","Access-Control-Allow-Origin:*");
+    //对于ajaxRequest，本js.html将会传递param1给你。
+    XMLHttpRequest_test.send("sp=" +zoom);
+    XMLHttpRequest_test.onreadystatechange = function() {
+
+
+              //这个4代表已经发送完毕之后
+              if (XMLHttpRequest_test.readyState == 4) {
+                b=XMLHttpRequest_test.responseText
+                a=XMLHttpRequest_test.responseText.split("/");
+                //  alert(a[1]);
+                //200代表正确收到了返回结果
+                // alert(XMLHttpRequest_test.status);
+                if (XMLHttpRequest_test.status == 200) {
+                  //弹出返回结果
+                //   alert(XMLHttpRequest_test.responseText.split("/"));
+                   ding()
+                } else {
+                  //如果不能正常接受结果，你肯定是断网，或者我的服务器关掉了。
+                  alert("网络连接中断！");
+                }
+              }
+            }
+        function ding(){
+    map.clearOverlays();
+    var j = document.getElementById('zoominput').value;
+    var new_point1=[];
+    new_point1 = new BMap.Point(path[j].l00,path[j].a00);
+    map.panTo(new_point1);//定位在早上的经纬度
+    var zoom = document.getElementById('zoominput').value;
+    var circle;
+    var new_point=[];
+    if (zoom==0){
+        for(let j=0;j<pa0.length;j++)
+    {
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa0[j].l,pa0[j].a);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5,
+
+    });
+        map.addOverlay(circle); // 增加圆
+}}
+if (zoom==1){
+        for(let j=0;j<pa1.length;j++)
+    {
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa1[j].l,pa1[j].a);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+        map.addOverlay(circle); // 增加圆
+}}
+if (zoom==2){
+        for(let j=0;j<pa2.length;j++)
+    {
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa2[j].l,pa2[j].a);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+        map.addOverlay(circle); // 增加圆
+}}
+if (zoom==3){
+        for(let j=0;j<pa3.length;j++)
+    {
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa3[j].l,pa3[j].a);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+        map.addOverlay(circle); // 增加圆
+}}
+if (zoom==4){
+        for(let j=0;j<pa4.length;j++)
+    {
+        var num=0;
+        // new_point = new BMapGL.Point(path[i].l , path[i].a);
+        new_point = new BMap.Point(pa4[j].l,pa4[j].a);
+        var circle = new BMap.Circle(new_point, 100, {
+        strokeColor: 'blue',
+        strokeWeight: 2,
+        strokeOpacity: 0.5
+    });
+        map.addOverlay(circle); // 增加圆
+}}
+    for(let i=0;i<a.length;i++){
+        point=new BMap.Point(path[a[i]].l00,path[a[i]].a00);
+        var smarker1 = new BMap.Marker(point);
+        map.addOverlay(smarker1);
+        smarker1.addEventListener('click', function () {
+        var ops = {
+    	width: 250,
+   		height: 150,
+    	title: path[i].n
+		};
+        infoWindow1= new BMap.InfoWindow('性别：'+path[i].s+'。手机号：'+path[i].t, ops);
+   		this.openInfoWindow(infoWindow1, new_point);
+    });
+        }
+
+}
+function fanhui() {
+				var url = 'index.html';
+				//window.open(url); //新窗口打开
+
+				window.location.href = url; //当前窗口打开
+				//alert("事件");
+			}
+function tiao(){
+    var url = 'mjtable.html#'+b;
+				//window.open(url); //新窗口打开
+
+				window.location.href = url; //当前窗口打开
+}
+}
+</script>
+</html>
