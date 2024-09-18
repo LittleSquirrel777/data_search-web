@@ -9,7 +9,7 @@
     },
     data() {
       return {
-        baseUrl: 'http://10.195.25.117:9999',
+        baseUrl: 'http://127.0.0.1:8000',
         textarea: '',
         comnum: 0,
         myvalue: '',
@@ -103,7 +103,7 @@
         FormDatas.append('file', item.file)
         FormDatas.append('party', 'Alice')
         FormDatas.append('id', 1)
-        axios.post('http://10.195.25.117:8080/update', FormDatas).then((response) => {
+        axios.post('http://127.0.0.1:8000/update', FormDatas).then((response) => {
           console.log(response.data)
           // this.$message.success(response.data.message)
         })
@@ -148,7 +148,7 @@
         FormDatas.append('file', item.file)
         FormDatas.append('party', 'Bob')
         FormDatas.append('id', 1)
-        axios.post('http://10.195.25.117:8080/update', FormDatas).then((response) => {
+        axios.post('http://127.0.0.1:8000/update', FormDatas).then((response) => {
           console.log(response.data)
           // this.$message.success(response.data.message)
         })
@@ -297,7 +297,7 @@
         console.log(this.MaliresultList)
       },
       GetMaliTime: async function() {
-        await axios.get('http://10.195.25.117:8080/verify', {params: {id: 1, operate: this.chosetype}}).
+        await axios.get('http://1127.0.0.1:8000/verify', {params: {id: 1, operate: this.chosetype}}).
         then((response) => {
           console.log(response.data.share_info.output_alice)
           this.Maliresult.share_alice_time = response.data.share_info.output_alice.total_time
@@ -307,7 +307,7 @@
         })
       },
       GetMaliResult: async function() {
-        axios.get('http://10.195.25.117:8080/result', {params: {id: 1}}).
+        axios.get('http://127.0.0.1:8000/result', {params: {id: 1}}).
         then((response) => {
           // console.log(response.data)
           this.Maliresult.comresult = response.data

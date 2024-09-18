@@ -5,6 +5,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import MultilevelMenuExample from './modules/multilevel.menu.example'
 import BreadcrumbExample from './modules/breadcrumb.example'
 import Search from './modules/search'
+import Audit from './modules/audit'
 import type { Route } from '#/global'
 import useSettingsStore from '@/store/modules/settings'
 
@@ -97,6 +98,15 @@ const asyncRoutes: Route.recordMainRaw[] = [
       Encryption,
     ],
   },
+  {
+    meta: {
+      title: '审计',
+      icon: 'sidebar-default',
+    },
+    children: [
+      Audit,
+    ],
+  }
 ]
 
 const constantRoutesByFilesystem = generatedRoutes.filter((item) => {

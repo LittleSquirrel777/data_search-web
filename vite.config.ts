@@ -25,10 +25,15 @@ export default ({ mode, command }) => {
     base: './',
     // 开发服务器选项 https://cn.vitejs.dev/config/#server-options
     server: {
-      open: true,
-      port: 9000,
+      // open: true,
+      // port: 9000,
       // host: '10.198.131.25',
       host: '0.0.0.0',
+      // https: false, // 是否开启 https
+      open: false, // 是否自动在浏览器打开
+      cors: true, // 允许跨域  8月更新
+      port: 9000, // 端口号
+
       proxy: {
         '/proxy': {
           target: env.VITE_APP_API_BASEURL,
