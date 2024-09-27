@@ -182,7 +182,7 @@ export default {
     },
     changecolor(squares) {
       for (let i = 0; i < squares.length; i++) {
-        squares[i].color = 'rgb(220,20,60)'
+        squares[i].color = 'rgb(251,180,183)'
       }
       // this.generateSquares()
     },
@@ -290,7 +290,7 @@ export default {
           this.destroySquares = []
           for (let i = 0; i < destroy_locations.length; i++) {
             // this.destroySquares.push({ id: destroy_locations[i], color: 'rgb(141,170,220)'})
-            this.destroySquares.push({ id: destroy_locations[i], color: 'rgb(251,180,183)', pre_hash: pre_hashs[i], des_hash: des_hashs[i], showTooltip: false})
+            this.destroySquares.push({ id: destroy_locations[i], color: 'rgb(220,20,60)', pre_hash: pre_hashs[i], des_hash: des_hashs[i], showTooltip: false})
             // this.destroySquares[i].color = 'darked'
           }
           this.$notify({
@@ -343,7 +343,7 @@ export default {
             this.destroy_flag = true
             for (let i = 0; i < destroy_locations.length; i++) {
               // this.destroySquares.push({ id: destroy_locations[i], color: 'rgb(141,170,220)'})
-              this.destroySquares.push({ id: destroy_locations[i], color: 'rgb(251,180,183)', pre_hash: pre_hashs[i], des_hash: des_hashs[i], showTooltip: false})
+              this.destroySquares.push({ id: destroy_locations[i], color: 'rgb(220,20,60)', pre_hash: pre_hashs[i], des_hash: des_hashs[i], showTooltip: false})
               // this.destroySquares[i].color = 'darked'
             }
             this.loadVisibleSquares(this.destroySquares)
